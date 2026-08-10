@@ -1,0 +1,955 @@
+<style>
+  body { background-color: transparent !important; margin: 0; padding: 0; }
+  .club-sidebar-minimal { width: 100%; max-width: 290px; margin: 0 auto; background: #fffaf0; padding: 10px; border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); box-sizing: border-box; transition: 0.5s; }
+  .music-widget { background: #fffaf0; border: 1px solid #d4af37; border-radius: 8px; padding: 10px; margin-bottom: 20px; transition: 0.3s; }
+  .music-widget:hover { box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+  .music-header { color: #b8860b; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 5px; }
+  .song-title { font-size: 12px; text-align: center; color: #333; font-weight: bold; margin-bottom: 8px; }
+  .music-controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 5px; }
+  .music-controls button { background: none; border: none; cursor: pointer; color: #b8860b; font-size: 18px; transition: 0.2s; }
+  .music-controls button:hover { transform: scale(1.2); }
+  .visualizer { display: flex; justify-content: center; align-items: center; gap: 3px; height: 20px; margin: 5px 0 10px 0; }
+  .bar { width: 3px; height: 5px; background: #d4af37; animation: dance 1s infinite ease-in-out; }
+  @keyframes dance { 0%, 100% { height: 5px; } 50% { height: 18px; } }
+  .bar:nth-child(2) { animation-delay: 0.2s; } .bar:nth-child(3) { animation-delay: 0.4s; } .bar:nth-child(4) { animation-delay: 0.6s; } .bar:nth-child(5) { animation-delay: 0.8s; }
+  .progress-bg { width: 100%; height: 4px; background: #f0e6cc; border-radius: 2px; cursor: pointer; margin-bottom: 10px; }
+  .progress-fill { height: 100%; background: #d4af37; width: 0%; border-radius: 2px; }
+  .playlist-container { max-height: 120px; overflow-y: auto; font-size: 11px; border-top: 1px solid #e0d0a0; padding-top: 5px; }
+  .playlist-container::-webkit-scrollbar { width: 6px; }
+  .playlist-container::-webkit-scrollbar-track { background: #f0e6cc; border-radius: 3px; }
+  .playlist-container::-webkit-scrollbar-thumb { background-color: #d4af37; border-radius: 3px; }
+  .playlist-item { padding: 4px 0; cursor: pointer; color: #555; border-bottom: 1px dotted #e0d0a0; transition: 0.2s; }
+  .playlist-item:hover { color: #b8860b; padding-left: 5px; }
+  .header-section { text-align: center; margin-bottom: 20px; }
+  .club-name { font-size: 18px; font-weight: bold; color: #b8860b; display: flex; justify-content: center; align-items: center; }
+  .shaking-crown { display: inline-block; margin-left: 8px; animation: shakeCrown 2s infinite ease-in-out; }
+  @keyframes shakeCrown { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
+  .tagline-wrapper { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 5px; }
+  .club-tagline { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1.5px; }
+  .butterfly-fly { display: inline-block; font-size: 16px; animation: butterflyNatural 4s ease-in-out infinite; }
+  @keyframes butterflyNatural { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-5px) translateX(-5px) rotate(-10deg); } 50% { transform: translateY(-8px) translateX(0px) rotate(0deg); } 75% { transform: translateY(-5px) translateX(5px) rotate(10deg); } }
+  .gif-container { width: 100%; margin-bottom: 5px; border-radius: 8px; overflow: hidden; border: 1px solid #d4af37; }
+  .gif-container img { width: 100%; display: block; }
+  .tagline-custom { text-align: center; margin: 0 0 15px 0; font-size: 11px; font-weight: bold; color: #b8860b; letter-spacing: 0.5px; }
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: #b8860b; margin-bottom: 15px; font-weight: 700; text-align: center; }
+  .minimal-links a { display: block; padding: 10px 0; color: #333; text-decoration: none; font-size: 14px; border-bottom: 1px solid #f0e6cc; transition: 0.2s; }
+  .minimal-links a:hover { color: #b8860b; padding-left: 5px; }
+
+  /* New Royals Widget Styles */
+  .new-royals-widget { margin: 20px 0; background: linear-gradient(180deg, #fffcf7 0%, #f9f2e3 100%); border-radius: 12px; padding: 15px 12px; border: 1px solid #e6d7be; box-sizing: border-box; }
+  .nr-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .nr-header-icon { font-size: 18px; }
+  .nr-header h2 { color: #3d3122; font-size: 15px; font-weight: 700; margin: 0; }
+  .nr-subtitle { color: #8c7355; font-size: 11px; margin-bottom: 12px; padding-left: 26px; }
+  .nr-welcome-box { background: #fff8ee; border: 1px solid #ebdcc5; border-radius: 10px; padding: 10px 8px; margin-bottom: 10px; }
+  .nr-welcome-title { text-align: center; color: #9c7827; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+  .nr-member { display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #e8dbcb; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; transition: all 0.25s ease; }
+  .nr-member:hover { background: #fffdf9; border-color: #d4af37; transform: translateX(3px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15); }
+  .nr-member:last-child { margin-bottom: 0; }
+  .nr-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #d4af37; background: #f4eee1; flex-shrink: 0; }
+  .nr-info { flex: 1; min-width: 0; }
+  .nr-username { color: #2c2215; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nr-username a { color: inherit; text-decoration: none; }
+  .nr-username a:hover { color: #aa7c11; }
+  .nr-rating { color: #8c7355; font-size: 11px; margin-top: 1px; }
+  .nr-footer { text-align: center; color: #8c7355; font-size: 11px; font-weight: 500; margin-top: 8px; }
+  .nr-loading, .nr-error { text-align: center; padding: 15px 10px; font-size: 12px; color: #8c7355; }
+  .nr-error { color: #b71c1c; }
+
+  /* Birthdays Widget Styles */
+  .birthdays-widget-card { margin: 20px 0; background: #FAF6E9; border-radius: 12px; padding: 15px 12px; border: 1px solid #E6D08D; color: #4A3E2C; box-sizing: border-box; }
+  .b-header { margin-bottom: 12px; padding-left: 2px; }
+  .b-header-title { font-size: 14px; font-weight: 800; color: #8C6212; letter-spacing: 0.8px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .b-header-subtitle { font-size: 11px; font-style: italic; color: #B58E3C; margin-top: 2px; }
+  .b-header .dot { width: 8px; height: 8px; background-color: #D4A017; border-radius: 50%; display: inline-block; box-shadow: 0 0 6px rgba(212, 160, 23, 0.6); }
+  .b-form-box { background: #FFFFFF; border-radius: 12px; padding: 10px; border: 1px solid #EFE2C6; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02); }
+  .b-input-wrapper { position: relative; display: flex; align-items: center; }
+  .b-input-icon { position: absolute; left: 10px; font-size: 11px; color: #B58E3C; pointer-events: none; }
+  .b-input-field { width: 100%; padding: 8px 10px 8px 30px; border-radius: 10px; border: 1px solid #E2D3B0; background: #FFFDF8; font-size: 11px; font-weight: 700; color: #4A3E2C; outline: none; transition: all 0.2s; box-sizing: border-box; }
+  .b-input-field::placeholder { color: #A8987E; font-weight: 600; }
+  .b-input-field:focus { border-color: #C59223; background: #FFFFFF; }
+  .b-row { display: flex; gap: 6px; }
+  .b-row .b-input-wrapper { flex: 1; }
+  select.b-input-field { appearance: none; cursor: pointer; padding-right: 20px; }
+  .b-select-arrow { position: absolute; right: 8px; font-size: 8px; color: #C59223; pointer-events: none; }
+  .b-save-btn { background: linear-gradient(135deg, #C59223, #9A6F13); color: white; border: none; padding: 7px 16px; border-radius: 14px; font-size: 11px; font-weight: 800; cursor: pointer; align-self: flex-start; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(197, 146, 35, 0.3); transition: transform 0.1s, opacity 0.2s; }
+  .b-save-btn:hover { opacity: 0.95; transform: translateY(-1px); }
+  .birthday-list { display: flex; flex-direction: column; gap: 8px; max-height: 195px; overflow-y: auto; padding-right: 2px; }
+  .birthday-list::-webkit-scrollbar { width: 4px; }
+  .birthday-list::-webkit-scrollbar-track { background: rgba(238, 226, 198, 0.4); border-radius: 10px; }
+  .birthday-list::-webkit-scrollbar-thumb { background: #C59223; border-radius: 10px; }
+  .b-empty-state { text-align: center; color: #9C8661; font-size: 10px; font-weight: 600; padding: 15px 8px; background: #FFFFFF; border-radius: 12px; border: 1px dashed #EFE2C6; }
+  .bday-card { background: #FFFFFF; border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; border: 1px solid #EFE2C6; box-shadow: 0 2px 5px rgba(0,0,0,0.02); position: relative; flex-shrink: 0; transition: transform 0.2s; }
+  .bday-card:hover { transform: translateX(2px); }
+  .bday-card.today { background: linear-gradient(135deg, #FFFDF0, #FAF0D0); border: 1.5px solid #C59223; box-shadow: 0 0 10px rgba(197, 146, 35, 0.25); }
+  .b-avatar-box { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #C59223; overflow: hidden; flex-shrink: 0; background: #FAF6E9; cursor: pointer; display: block; }
+  .b-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+  .b-info-box { flex-grow: 1; overflow: hidden; }
+  .b-username { font-family: 'Georgia', serif; font-size: 12px; font-weight: 800; color: #8C6212; text-decoration: none; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; transition: color 0.2s; }
+  .b-username:hover { color: #C59223; text-decoration: underline; }
+  .b-date-line { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #7A633F; margin: 1px 0; }
+  .badge-today { background: linear-gradient(135deg, #C59223, #9A6F13); color: white; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 6px; letter-spacing: 0.5px; }
+  .countdown-text { color: #B58E3C; font-weight: 800; }
+  .b-note-text { font-size: 9px; color: #938267; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Daily Points Race Widget Styles */
+  .race-widget-container { 
+      width: 100%; 
+      background: linear-gradient(145deg, #fffbf0, #f5ebd0); 
+      border-radius: 12px; 
+      padding: 14px; 
+      box-sizing: border-box; 
+      text-align: center; 
+      position: relative;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      margin: 20px 0;
+  }
+  .race-widget-container::before {
+      content: '';
+      position: absolute;
+      top: -2px; bottom: -2px; left: -2px; right: -2px;
+      background: linear-gradient(60deg, #d4af37, #3498db, #9b59b6, #d4af37);
+      background-size: 300% 300%;
+      border-radius: 13px;
+      z-index: -1;
+      opacity: 0.4;
+      animation: auroraGlow 8s ease infinite;
+      filter: blur(5px);
+  }
+  @keyframes auroraGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+  .race-title { 
+      font-size: 16px; 
+      font-weight: 800; 
+      color: #8b6508; 
+      text-align: left; 
+      padding-left: 4px; 
+      margin-bottom: 2px; 
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+  }
+  .race-subtitle { 
+      font-size: 11px; 
+      font-weight: 800; 
+      font-style: italic; 
+      text-align: left; 
+      padding-left: 4px; 
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, #b8860b, #e6c619, #fffdf4, #e6c619, #b8860b); 
+      background-size: 400% auto; 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      animation: slowGoldShine 6s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+      letter-spacing: 0.3px;
+  }
+  @keyframes slowGoldShine { 
+      0% { background-position: 0% center; } 
+      100% { background-position: 400% center; } 
+  }
+  .podium-container { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-end; 
+      height: 235px; 
+      margin-bottom: 10px; 
+      background: rgba(255, 255, 255, 0.7); 
+      border-radius: 10px; 
+      border: 1px solid rgba(212, 175, 55, 0.3); 
+      padding: 0 2px 8px 2px; 
+  }
+  .podium-column { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      width: 78px; 
+      position: relative; 
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+  }
+  .podium-column:hover { transform: translateY(-4px); }
+  .stat-capsule { 
+      background: rgba(255, 255, 255, 0.95); 
+      border: 1px solid rgba(212, 175, 55, 0.4); 
+      border-radius: 8px; 
+      padding: 2px 5px; 
+      font-size: 9px; 
+      font-weight: bold; 
+      color: #4a3b10; 
+      display: flex; 
+      align-items: center; 
+      gap: 3px; 
+      margin-bottom: 5px; 
+      min-height: 16px; 
+      white-space: nowrap; 
+  }
+  .profile-wrapper { position: relative; margin-bottom: 5px; }
+  .profile-img { 
+      width: 44px; 
+      height: 44px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 2px solid #ccc; 
+      background: #eee; 
+  }
+  .rank-badge { 
+      position: absolute; 
+      top: -7px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      width: 15px; 
+      height: 15px; 
+      border-radius: 50%; 
+      font-size: 9px; 
+      font-weight: bold; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #000; 
+      z-index: 10; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .rank-1 .profile-img { width: 54px; height: 54px; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.6); }
+  .rank-1 .rank-badge { background: linear-gradient(135deg, #f7d560, #d4af37); color: #000; }
+  .rank-2 .rank-badge { background: linear-gradient(135deg, #e0e0e0, #a0a0a0); }
+  .rank-3 .rank-badge { background: linear-gradient(135deg, #f39c12, #d35400); color: #fff; }
+  .username-race { 
+      font-size: 10px; 
+      font-weight: bold; 
+      color: #2c2c2c; 
+      text-decoration: none; 
+      width: 72px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      margin-bottom: 3px; 
+      display: block; 
+      transition: color 0.2s;
+  }
+  .username-race:hover { color: #d4af37; }
+  .mode-badges { 
+      display: flex; 
+      justify-content: center; 
+      gap: 3px; 
+      max-width: 74px; 
+      flex-wrap: wrap; 
+      min-height: 18px; 
+      margin-bottom: 5px; 
+      background: rgba(255, 255, 255, 0.75); 
+      padding: 2px 4px; 
+      border-radius: 5px; 
+      border: 1px solid rgba(212, 175, 55, 0.2);
+  }
+  .badge-item { font-size: 9px; font-weight: bold; color: #333; display: flex; align-items: center; gap: 2px; }
+  .mode-icon-img { width: 13px; height: 13px; object-fit: contain; vertical-align: middle; display: inline-block; }
+  .pillar { 
+      width: 100%; 
+      border-top-left-radius: 8px; 
+      border-top-right-radius: 8px; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+  }
+  .rank-1 .pillar { height: 70px; background: linear-gradient(180deg, #d4af37, #8c6d1a); box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
+  .rank-2 .pillar { height: 50px; background: linear-gradient(180deg, #95a5a6, #7f8c8d); }
+  .rank-3 .pillar { height: 40px; background: linear-gradient(180deg, #d35400, #a04000); }
+  .pts { font-size: 13px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .pts-label { font-size: 7px; text-transform: uppercase; opacity: 0.9; font-weight: bold; letter-spacing: 0.5px; color: #fff; }
+  .footer-wrapper-race { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 6px; }
+  .pulse-dot { width: 5px; height: 5px; background-color: #2ecc71; border-radius: 50%; box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(46, 204, 113, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+  .footer-info-race { font-size: 8px; color: #7a6528; font-family: monospace; text-align: left; white-space: pre-line; line-height: 1.2; }
+
+  .invite-box { margin-top: 20px; padding: 12px; background: #fffaf0; border: 1px solid #d4af37; border-radius: 8px; text-align: center; }
+  .invite-box-title { font-size: 13px; font-weight: bold; color: #b8860b; margin-bottom: 5px; }
+  .invite-box-text { font-size: 11px; color: #555; margin-bottom: 10px; }
+  .invite-btn { width: 100%; background: #d4af37; color: white; border: none; padding: 10px 0; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
+  .invite-btn:hover { background: #b8860b; }
+  .shake-effect { animation: shake 0.4s ease-in-out; }
+  .success-flash { background-color: #2ecc71 !important; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-4px); } }
+  .rtg-wrapper { width: 100%; margin: 20px auto; background: #fffaf0; padding: 15px; border-radius: 12px; border: 1px solid #d4af37; text-align: center; box-sizing: border-box; }
+  .rtg-title { font-size: 14px; font-weight: 800; color: #b8860b; margin-bottom: 10px; text-transform: uppercase; }
+  .rtg-progress-wrapper { background: #f0e6cc; height: 12px; border-radius: 6px; overflow: hidden; margin: 10px 0; }
+  .rtg-progress-bar { height: 100%; background: linear-gradient(90deg, #d4af37, #f7d560); width: 61%; transition: width 1.5s ease-in-out; }
+  .rtg-stats { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #856404; }
+  .calendar-wrapper { width: 100%; margin: 0 auto; background: rgba(255, 250, 240, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 12px; padding: 15px; box-sizing: border-box; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; color: #b8860b; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; }
+  .cal-btn { cursor: pointer; border: none; background: rgba(212, 175, 55, 0.1); color: #b8860b; font-size: 14px; width: 28px; height: 28px; border-radius: 50%; transition: all 0.3s ease; }
+  .cal-btn:hover { background: #d4af37; color: white; transform: scale(1.1); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size: 11px; }
+  .cal-day-name { font-weight: bold; color: #b8860b; padding-bottom: 8px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+  .cal-date { padding: 6px 0; color: #555; transition: all 0.2s; cursor: default; border-radius: 6px; }
+  .cal-date:hover { background: rgba(212, 175, 55, 0.2); color: #b8860b; }
+  .today { background: linear-gradient(135deg, #d4af37, #b8860b); color: white !important; font-weight: bold; box-shadow: 0 4px 10px rgba(184, 134, 11, 0.3); }
+</style>
+
+<div class="club-sidebar-minimal">
+  <div style="display:flex; justify-content:flex-end;">
+      <button onclick="toggleDarkMode()" style="border:none; background:none; cursor:pointer; font-size:16px;">🌙</button>
+  </div>
+  <div class="header-section">
+    <div class="club-name">The Royal File <span class="shaking-crown">👑</span></div>
+    <div class="tagline-wrapper">
+        <span class="butterfly-fly">✨</span>
+        <div class="club-tagline">WHERE STRATEGY MEETS ROYALTY</div>
+        <span class="butterfly-fly" style="animation-delay: 1.5s;">✨</span>
+    </div>
+  </div>
+  <div class="gif-container"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z0ZWFubW03bTZscDZqaHk0Mmt5bTdoNHE4bHZ0bWZ3eTJ5OGJjZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWZfY3Q9Zw/qLErpwsfLyY6RSTJlJ/giphy.gif" alt="Club GIF"></div>
+  <div class="tagline-custom">Think Deep • Move Wise • Rule Beyond</div>
+
+  <!-- Music Widget -->
+  <div class="music-widget">
+    <div class="music-header">Royal Melodies 🎵</div>
+    <div id="song-title" class="song-title">Select a Song</div>
+    <div class="visualizer" id="viz">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <div class="progress-bg" id="progressContainer"><div class="progress-fill" id="progressBar"></div></div>
+    <div class="music-controls">
+        <button onclick="prevSong()">⏮</button>
+        <button id="playBtn" onclick="togglePlay()">▶</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+    <div id="playlist" class="playlist-container"></div>
+    <audio id="audioPlayer"></audio>
+  </div>
+
+  <div class="rtg-wrapper">
+    <div class="rtg-title">Road to Glory 🏆</div>
+    <div class="rtg-progress-wrapper"><div id="rtg-bar" class="rtg-progress-bar"></div></div>
+    <div class="rtg-stats"><span id="current-count">610+</span><span>Goal: 1000</span></div>
+  </div>
+
+  <!-- New Royals Widget -->
+  <div class="new-royals-widget">
+    <div class="nr-header">
+      <span class="nr-header-icon">♟️</span>
+      <h2>New Royals</h2>
+    </div>
+    <div class="nr-subtitle">Fresh Arrivals</div>
+    <div class="nr-welcome-box">
+      <div class="nr-welcome-title">Welcome! 🤝</div>
+      <div id="members-list">
+        <div class="nr-loading">Loading latest members...</div>
+      </div>
+    </div>
+    <div class="nr-footer">Bow to the New Royals! 👑</div>
+  </div>
+
+  <!-- Birthdays Widget -->
+  <div class="birthdays-widget-card">
+    <div class="b-header">
+        <div class="b-header-title">
+            <span class="dot"></span>
+            <span>Birthdays 🎂</span>
+        </div>
+        <div class="b-header-subtitle">Celebrate our royals...</div>
+    </div>
+
+    <div class="b-form-box">
+        <div class="b-input-wrapper">
+            <span class="b-input-icon">♟</span>
+            <input type="text" id="bday-username" class="b-input-field" placeholder="Chess.com Username">
+        </div>
+
+        <div class="b-row">
+            <div class="b-input-wrapper">
+                <span class="b-input-icon">📅</span>
+                <select id="bday-month" class="b-input-field">
+                    <option value="">Month</option>
+                </select>
+                <span class="b-select-arrow">▼</span>
+            </div>
+            <div class="b-input-wrapper">
+                <select id="bday-day" class="b-input-field">
+                    <option value="">Day</option>
+                </select>
+                <span class="b-select-arrow">▼</span>
+            </div>
+        </div>
+
+        <div class="b-input-wrapper">
+            <span class="b-input-icon">🪐</span>
+            <input type="text" id="bday-note" class="b-input-field" placeholder="Note (e.g., hello!!)">
+        </div>
+
+        <button class="b-save-btn" onclick="saveBirthday()">🎉 Save</button>
+    </div>
+
+    <div id="birthday-list" class="birthday-list">
+        <!-- Dynamic Cards Load Here -->
+    </div>
+  </div>
+
+  <!-- Daily Points Race Widget -->
+  <div class="race-widget-container">
+    <div class="race-title">Daily Points Race</div>
+    <div class="race-subtitle">Claim the crown...</div>
+    <div class="podium-container" id="podium">
+        <div id="loading-msg" style="width:100%; text-align:center; color:#8b6508; font-size:11px; margin-top:90px;">Connecting to Cloud...</div>
+    </div>
+    <div class="footer-wrapper-race">
+        <div class="pulse-dot"></div>
+        <div class="footer-info-race" id="update-time">Initializing...</div>
+    </div>
+  </div>
+
+  <div class="section-title">Quick Links</div>
+  <div class="minimal-links">
+    <a href="https://www.chesswrap.me/" target="_blank">📰 Club Recap</a>
+    <a href="https://www.chess.com/clubs/events/the-royal-file" target="_blank">📅 Club Events</a>
+    <a href="https://www.chess.com/leaderboard/live/rapid?group=917905" target="_blank">📊 Leaderboard</a>
+    <a href="https://www.chess.com/clubs/forum/view/guess-the-elo-1085" target="_blank">🤔 Guess the Elo</a>
+    <a href="https://www.chess.com/clubs/forum/view/advertisement-forum-153" target="_blank">📢 Advertisement Forum</a>
+    <a href="https://smartpolls.co.uk/p/149778#" target="_blank">⭐ Rate Our Club</a>
+    <a href="https://www.chess.com/club/royal-file-staff" target="_blank">🏢 Club HQ</a>
+  </div>
+
+  <div class="invite-box">
+    <div class="invite-box-title">Grow the Realm 👑</div>
+    <div class="invite-box-text">Challenge together, grow together. Invite your allies to join The Royal File!</div>
+    <button class="invite-btn" onclick="copyInviteLink()">🔗 Copy Invite Link</button>
+  </div>
+  <div class="calendar-wrapper" style="margin-top: 20px;">
+    <div class="cal-header"><button class="cal-btn" onclick="changeMonth(-1)">◀</button><div id="monthDisplay"></div><button class="cal-btn" onclick="changeMonth(1)">▶</button></div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+  <div style="text-align: center; margin-top: 25px; border-top: 1px solid #d4af37; padding-top: 15px; margin-bottom: 10px;">
+    <div style="font-size: 10px; color: #b8860b; font-style: italic;">"Where Every Move Is A Legacy"</div>
+    <div style="font-size: 10px; color: #856404; margin-top: 5px; letter-spacing: 1px;">THE ROYAL FILE | EST. 2026</div>
+  </div>
+</div>
+
+<script>
+  const songs = [
+      { title: "MANIAC", src: "https://github.com/arifislam355865-max/song/raw/main/ZAYDE%20WOLF%20SAM%20TINNESZ%20EDVN%20-%20MANIAC%20-%20Official%20Lyric%20Video_128k.mp3" },
+      { title: "Alone Pt. II", src: "https://github.com/arifislam355865-max/song/raw/main/Alan%20Walker%20%26%20Ava%20Max%20-%20Alone%2C%20Pt.%20II%20(Lyrics)_128k.mp3" },
+      { title: "Dai Dai", src: "https://github.com/arifislam355865-max/song/raw/main/Shakira%2C%20Burna%20Boy%20-%20Dai%20Dai%20(Official%20Video)_128k.mp3" },
+      { title: "ODNOGO", src: "https://github.com/arifislam355865-max/song/raw/main/TATYANA%20KURTUKOVA%20-%20ODNOGO%20(lyrics)_128k.mp3" },
+      { title: "Headlights", src: "https://github.com/arifislam355865-max/song/raw/main/Alok%2C%20Alan%20Walker%20-%20Headlights%20(Lyrics)%20ft.%20KIDDO_MP3%20(1).mp3" },
+      { title: "Unstoppable", src: "https://github.com/arifislam355865-max/song/raw/main/YTDown.com_YouTube_Sia-Unstoppable-Lyrics_Media_oS07d8Gr4tw_008_128k.m4a" },
+      { title: "Faded", src: "https://github.com/arifislam355865-max/song/raw/main/Alan%20Walker%20-%20Faded%20(Lyrics)_128k.mp3" },
+      { title: "Believer", src: "https://github.com/arifislam355865-max/song/raw/main/Imagine%20Dragons%20-%20Believer%20(Lyrics)_128k.mp3" },
+      { title: "Darkside", src: "https://github.com/arifislam355865-max/song/raw/main/NEONI%20-%20Darkside%20(Lyrics)_128k.mp3" },
+      { title: "Suzume", src: "https://github.com/arifislam355865-max/song/raw/main/RADWIMPS%20-%20Suzume%20(Lyrics)%20ft.%20Toaka_128k%20(2).mp3" },
+      { title: "Broken Angel", src: "https://github.com/arifislam355865-max/song/raw/main/Arash%20feat.%20Helena%20-%20Broken%20Angel%20(Lyrics)_128k.mp3" },
+      { title: "Copines", src: "https://github.com/arifislam355865-max/song/raw/main/Aya%20Nakamura%20-%20Copines%20(Lyrics)_128k.mp3" },
+      { title: "Royalty", src: "https://github.com/arifislam355865-max/song/raw/main/Egzod%20%26%20Maestro%20Chives%20-%20Royalty%20(Lyrics)%20ft.%20Neoni_128k.mp3" },
+      { title: "Bilionera", src: "https://github.com/arifislam355865-max/song/raw/main/Bilionera%20Lyrics%20_%20Otilia%20Bilionera%20song%20lyrics_128k.mp3" },
+      { title: "Unravel", src: "https://github.com/arifislam355865-max/song/raw/main/TK%20from%20Ling%20toshite%20Sigure%20%E2%80%93%20Unravel%20(Tokyo%20Ghoul%20Opening)%20Lyrics%20%5BColor%20Coded%20_Jpn_Rom_Eng%5D_128k%20(1).mp3" }
+  ];
+  let index = 0;
+  const audio = document.getElementById('audioPlayer'), playBtn = document.getElementById('playBtn'), progressBar = document.getElementById('progressBar'), playlistEl = document.getElementById('playlist'), bars = document.querySelectorAll('.bar');
+  function togglePlay() { 
+      if(audio.paused) { audio.play(); playBtn.textContent = "⏸"; bars.forEach(b => b.style.animationPlayState = "running"); } 
+      else { audio.pause(); playBtn.textContent = "▶"; bars.forEach(b => b.style.animationPlayState = "paused"); } 
+  }
+  function toggleDarkMode() {
+      const sidebar = document.querySelector('.club-sidebar-minimal');
+      sidebar.style.background = sidebar.style.background === 'rgb(30, 30, 30)' ? '#fffaf0' : '#1e1e1e';
+      sidebar.style.color = sidebar.style.color === 'white' ? '#333' : 'white';
+  }
+  document.getElementById('progressContainer').onclick = (e) => { audio.currentTime = (e.offsetX / e.target.offsetWidth) * audio.duration; };
+  audio.ontimeupdate = () => { progressBar.style.width = (audio.currentTime / audio.duration) * 100 + "%"; };
+  function loadSong(i) { audio.src = songs[i].src; document.getElementById('song-title').textContent = songs[i].title; }
+  function nextSong() { index = (index + 1) % songs.length; loadSong(index); audio.play(); playBtn.textContent = "⏸"; }
+  function prevSong() { index = (index - 1 + songs.length) % songs.length; loadSong(index); audio.play(); playBtn.textContent = "⏸"; }
+  songs.forEach((s, i) => { const div = document.createElement('div'); div.className = "playlist-item"; div.textContent = (i+1) + ". " + s.title; div.onclick = () => { index = i; loadSong(i); audio.play(); playBtn.textContent = "⏸"; }; playlistEl.appendChild(div); });
+  loadSong(0); bars.forEach(b => b.style.animationPlayState = "paused");
+  
+  async function updateRTG() { try { const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.chess.com/pub/club/the-royal-file')); const data = await response.json(); const count = JSON.parse(data.contents).members_count; document.getElementById('current-count').innerText = count.toLocaleString() + "+"; document.getElementById('rtg-bar').style.width = Math.min((count / 1000) * 100, 100) + '%'; } catch (e) { document.getElementById('current-count').innerText = "610+"; } }
+  updateRTG(); setInterval(updateRTG, 60000);
+  
+  function copyInviteLink() {
+      const link = "https://www.chess.com/club/the-royal-file/join";
+      const btn = document.querySelector('.invite-btn');
+      const textArea = document.createElement("textarea");
+      textArea.value = link;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+          document.execCommand('copy');
+          btn.classList.add('shake-effect', 'success-flash');
+          btn.textContent = "✅ Link Copied!";
+      } catch (err) { alert("Copy failed: " + link); }
+      document.body.removeChild(textArea);
+      setTimeout(() => {
+          btn.classList.remove('shake-effect', 'success-flash');
+          btn.textContent = "🔗 Copy Invite Link";
+      }, 1000);
+  }
+  
+  let currentViewDate = new Date();
+  function renderCalendar() { const grid = document.getElementById('calGrid'); const display = document.getElementById('monthDisplay'); grid.innerHTML = '<div class="cal-day-name">Su</div><div class="cal-day-name">Mo</div><div class="cal-day-name">Tu</div><div class="cal-day-name">We</div><div class="cal-day-name">Th</div><div class="cal-day-name">Fr</div><div class="cal-day-name">Sa</div>'; const year = currentViewDate.getFullYear(), month = currentViewDate.getMonth(); display.textContent = currentViewDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate(); for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>'; for (let i = 1; i <= daysInMonth; i++) { const isToday = (i === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear()) ? 'today' : ''; grid.innerHTML += `<div class="cal-date ${isToday}">${i}</div>`; } }
+  function changeMonth(dir) { currentViewDate.setMonth(currentViewDate.getMonth() + dir); renderCalendar(); }
+  renderCalendar();
+
+  // New Royals Script
+  const CLUB_ID = "the-royal-file";
+  const REFRESH_INTERVAL = 30 * 1000;
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch");
+    return res.json();
+  }
+
+  async function getPlayerData(username) {
+    try {
+      const [profile, stats] = await Promise.all([
+        fetchJSON(`https://api.chess.com/pub/player/${username}`),
+        fetchJSON(`https://api.chess.com/pub/player/${username}/stats`)
+      ]);
+
+      const ratings = [
+        { name: "Rapid", value: stats?.chess_rapid?.last?.rating },
+        { name: "Blitz", value: stats?.chess_blitz?.last?.rating },
+        { name: "Bullet", value: stats?.chess_bullet?.last?.rating },
+        { name: "Daily", value: stats?.chess_daily?.last?.rating }
+      ].filter(r => r.value != null && r.value > 0);
+
+      let ratingText = "Unrated";
+      if (ratings.length > 0) {
+        const highest = ratings.reduce((a, b) => (a.value > b.value ? a : b));
+        ratingText = `${highest.name}: ${highest.value}`;
+      }
+
+      return {
+        username: profile.username,
+        avatar: profile.avatar || "https://www.chess.com/bundles/web/images/user-image.svg",
+        ratingText
+      };
+    } catch (e) {
+      return {
+        username,
+        avatar: "https://www.chess.com/bundles/web/images/user-image.svg",
+        ratingText: "Unrated"
+      };
+    }
+  }
+
+  async function loadMembers() {
+    const container = document.getElementById("members-list");
+
+    try {
+      const data = await fetchJSON(`https://api.chess.com/pub/club/${CLUB_ID}/members`);
+
+      const map = new Map();
+      ["weekly", "monthly", "all_time"].forEach(section => {
+        (data[section] || []).forEach(m => {
+          const existing = map.get(m.username);
+          if (!existing || m.joined > existing.joined) {
+            map.set(m.username, m);
+          }
+        });
+      });
+
+      const latest = Array.from(map.values())
+        .sort((a, b) => b.joined - a.joined)
+        .slice(0, 3);
+
+      if (latest.length === 0) {
+        container.innerHTML = `<div class="nr-error">No members found</div>`;
+        return;
+      }
+
+      const members = await Promise.all(latest.map(m => getPlayerData(m.username)));
+
+      container.innerHTML = members.map(m => `
+        <div class="nr-member">
+          <img class="nr-avatar" src="${m.avatar}" alt="${m.username}"
+               onerror="this.src='https://www.chess.com/bundles/web/images/user-image.svg'">
+          <div class="nr-info">
+            <div class="nr-username">
+              <a href="https://www.chess.com/member/${m.username}" target="_blank">@${m.username}</a>
+            </div>
+            <div class="nr-rating">${m.ratingText}</div>
+          </div>
+        </div>
+      `).join("");
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = `<div class="nr-error">Failed to load members</div>`;
+    }
+  }
+
+  loadMembers();
+  setInterval(loadMembers, REFRESH_INTERVAL);
+
+  // Birthdays Widget Script
+  const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const DEFAULT_CHESS_AVATAR = "https://www.chess.com/bundles/web/images/user-image.007dad08.svg";
+
+  function setupBirthdayDropdowns() {
+      const monthSel = document.getElementById('bday-month');
+      const daySel = document.getElementById('bday-day');
+
+      MONTH_NAMES.forEach((m, i) => {
+          monthSel.innerHTML += `<option value="${i + 1}">${m}</option>`;
+      });
+
+      for (let i = 1; i <= 31; i++) {
+          daySel.innerHTML += `<option value="${i}">${i}</option>`;
+      }
+  }
+
+  function getOrdinal(n) {
+      const s = ["th", "st", "nd", "rd"];
+      const v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  function saveBirthday() {
+      const user = document.getElementById('bday-username').value.trim();
+      const month = parseInt(document.getElementById('bday-month').value);
+      const day = parseInt(document.getElementById('bday-day').value);
+      const note = document.getElementById('bday-note').value.trim();
+
+      if (!user || !month || !day) {
+          alert('অনুগ্রহ করে ইউজারনেম, মাস এবং দিন সঠিকভাবে সিলেক্ট করুন!');
+          return;
+      }
+
+      let savedData = JSON.parse(localStorage.getItem('club_bday_list')) || [];
+      savedData = savedData.filter(item => item.username.toLowerCase() !== user.toLowerCase());
+
+      savedData.push({ username: user, month, day, note });
+      localStorage.setItem('club_bday_list', JSON.stringify(savedData));
+
+      document.getElementById('bday-username').value = '';
+      document.getElementById('bday-month').value = '';
+      document.getElementById('bday-day').value = '';
+      document.getElementById('bday-note').value = '';
+
+      renderBirthdayList();
+  }
+
+  function renderBirthdayList() {
+      const listEl = document.getElementById('birthday-list');
+      let data = JSON.parse(localStorage.getItem('club_bday_list')) || [];
+
+      listEl.innerHTML = '';
+
+      if (data.length === 0) {
+          listEl.innerHTML = `<div class="b-empty-state">No birthdays saved yet. Add yours above! 🎈</div>`;
+          return;
+      }
+
+      const now = new Date();
+      const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      data.forEach(item => {
+          let target = new Date(now.getFullYear(), item.month - 1, item.day);
+          if (target < todayDate) {
+              target.setFullYear(now.getFullYear() + 1);
+          }
+          const diffTime = target - todayDate;
+          item.diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      });
+
+      data.sort((a, b) => a.diffDays - b.diffDays);
+
+      data.forEach((item, index) => {
+          const isToday = (item.diffDays === 0);
+
+          let statusText = '';
+          if (isToday) {
+              statusText = `<span class="badge-today">TODAY 🎉</span>`;
+          } else {
+              statusText = `<span class="countdown-text">· in ${item.diffDays}d</span>`;
+          }
+
+          const imgId = `bday-avatar-img-${index}`;
+          const profileUrl = `https://www.chess.com/member/${item.username}`;
+
+          const card = document.createElement('div');
+          card.className = `bday-card ${isToday ? 'today' : ''}`;
+          card.innerHTML = `
+              <a href="${profileUrl}" target="_blank" class="b-avatar-box" title="View ${item.username}'s Profile">
+                  <img id="${imgId}" 
+                       src="${DEFAULT_CHESS_AVATAR}" 
+                       onerror="this.onerror=null; this.src='${DEFAULT_CHESS_AVATAR}';" 
+                       alt="${item.username}">
+              </a>
+              <div class="b-info-box">
+                  <a href="${profileUrl}" target="_blank" class="b-username" title="View Profile">@${item.username}</a>
+                  <div class="b-date-line">
+                      <span>🎂 ${getOrdinal(item.day)} ${MONTH_NAMES[item.month - 1]}</span>
+                      ${statusText}
+                  </div>
+                  ${item.note ? `<div class="b-note-text">${item.note}</div>` : ''}
+              </div>
+          `;
+
+          listEl.appendChild(card);
+
+          fetch(`https://api.chess.com/pub/player/${item.username.toLowerCase()}`)
+              .then(res => {
+                  if (res.ok) return res.json();
+                  throw new Error('User not found');
+              })
+              .then(playerData => {
+                  if (playerData.avatar) {
+                      const imgElement = document.getElementById(imgId);
+                      if (imgElement) imgElement.src = playerData.avatar;
+                  }
+              })
+              .catch(() => {});
+      });
+  }
+
+  setupBirthdayDropdowns();
+  renderBirthdayList();
+
+  // Daily Points Race System Script
+  const DEFAULT_AVATAR_RACE = 'https://www.chess.com/bundles/web/images/user-image.007dad08.svg';
+  const OWNER_USERNAME = 'oo_arabi';
+  
+  const MODE_ICONS = { 
+      rapid: '<img src="https://raw.githubusercontent.com/arifislam355865-max/nmrQWSA/main/white%203.png" class="mode-icon-img">',
+      bullet: '<img src="https://raw.githubusercontent.com/arifislam355865-max/nmrQWSA/main/white1.png" class="mode-icon-img">',
+      blitz: '<img src="https://raw.githubusercontent.com/arifislam355865-max/nmrQWSA/main/white%202.png" class="mode-icon-img">',
+      daily: '📅' 
+  };
+ 
+  const BIN_ID = '6a5090bbf5f4af5e297b396c';
+  const API_KEY = '$2a$10$QQhk9bjohcodNyTgm79FG.WStnpidQ0QsU21mMt158se8850Z83Xe';
+  const CACHE_DURATION = 7200000;
+  const LOCAL_CACHE_KEY = 'royal_file_daily_race_cache';
+
+  async function initRaceSystem() {
+      try {
+          const localRaw = localStorage.getItem(LOCAL_CACHE_KEY);
+          if (localRaw) {
+              const localData = JSON.parse(localRaw);
+              const now = Date.now();
+              if (localData.timestamp && (now - localData.timestamp < CACHE_DURATION) && localData.leaderboard) {
+                  renderPodium(localData.leaderboard, localData.timestamp);
+                  return;
+              }
+          }
+      } catch (e) {}
+
+      try {
+          const res = await fetch(`https://api.jsonbin.v3/b/${BIN_ID}/latest`, {
+              headers: { 'X-Bin-Meta': 'true', 'X-Master-Key': API_KEY }
+          });
+          if (res.ok) {
+              const responseData = await res.json();
+              const serverData = responseData.record;
+              if (serverData && serverData.leaderboard && serverData.leaderboard.length > 0) {
+                  const lastUpdatedTime = serverData.timestamp ? parseInt(serverData.timestamp) : 0;
+                  const now = Date.now();
+                  if (lastUpdatedTime && (now - lastUpdatedTime < CACHE_DURATION)) {
+                      saveToLocalCache(serverData.leaderboard, lastUpdatedTime);
+                      renderPodium(serverData.leaderboard, lastUpdatedTime);
+                      return;
+                  }
+              }
+          }
+      } catch (e) {}
+
+      document.getElementById('loading-msg').innerText = "Refreshing Leaderboard...";
+      await refreshGlobalData();
+  }
+
+  function saveToLocalCache(leaderboard, timestamp) {
+      try {
+          localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify({
+              leaderboard: leaderboard,
+              timestamp: timestamp
+          }));
+      } catch (e) {}
+  }
+
+  async function refreshGlobalData() {
+      try {
+          const clubRes = await fetch('https://api.chess.com/pub/club/the-royal-file/members');
+          const clubData = await clubRes.json();
+          const allMembers = [
+              ...(clubData.owner ? [clubData.owner] : []),
+              ...(clubData.admin || []),
+              ...(clubData.weekly || []),
+              ...(clubData.all_time || [])
+          ];
+          let uniqueUsernames = Array.from(new Set(allMembers.map(m => m.username)));
+          if (!uniqueUsernames.map(u => u.toLowerCase()).includes(OWNER_USERNAME)) {
+              uniqueUsernames.push(OWNER_USERNAME);
+          }
+
+          let leaderboardData = [];
+          const now = new Date();
+          const year = now.getUTCFullYear();
+          const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+          const todayStr = `${year}-${month}-${String(now.getUTCDate()).padStart(2, '0')}`;
+          const batchSize = 5;
+
+          for (let i = 0; i < uniqueUsernames.length; i += batchSize) {
+              const batch = uniqueUsernames.slice(i, i + batchSize);
+              await Promise.all(batch.map(async (username) => {
+                  let avatar = DEFAULT_AVATAR_RACE;
+                  let points = 0, wins = 0, draws = 0;
+                  let modePoints = { rapid: 0, blitz: 0, bullet: 0, daily: 0 };
+                  let modeCounts = { rapid: 0, blitz: 0, bullet: 0, daily: 0 };
+                  try {
+                      const gamesRes = await fetch(`https://api.chess.com/pub/player/${username}/games/${year}/${month}`);
+                      if (gamesRes.ok) {
+                          const gamesData = await gamesRes.json();
+                          if (gamesData.games) {
+                              gamesData.games.forEach(game => {
+                                  const gameDate = new Date(game.end_time * 1000).toISOString().split('T')[0];
+                                  if (gameDate === todayStr && game.rated === true) {
+                                      let isWhite = game.white.username.toLowerCase() === username.toLowerCase();
+                                      let result = isWhite ? game.white.result : game.black.result;
+                                      let timeClass = game.time_class || 'rapid';
+                                      
+                                      let earnedPoints = 0;
+                                      if (result === 'win') {
+                                          wins++;
+                                          if (timeClass === 'rapid') earnedPoints = 15;
+                                          else if (timeClass === 'blitz') earnedPoints = 9;
+                                          else if (timeClass === 'bullet') earnedPoints = 3;
+                                          else earnedPoints = 15;
+                                          
+                                          points += earnedPoints;
+                                          if (modePoints[timeClass] !== undefined) { 
+                                              modePoints[timeClass] += earnedPoints; 
+                                              modeCounts[timeClass]++; 
+                                          }
+                                      } else if (['agreed', 'stalemate', 'repetition', 'insufficient', '50move'].includes(result)) {
+                                          draws++;
+                                          if (timeClass === 'rapid') earnedPoints = 5;
+                                          else if (timeClass === 'blitz') earnedPoints = 3;
+                                          else if (timeClass === 'bullet') earnedPoints = 1;
+                                          else earnedPoints = 5;
+                                          
+                                          points += earnedPoints;
+                                          if (modePoints[timeClass] !== undefined) {
+                                              modePoints[timeClass] += earnedPoints;
+                                          }
+                                      }
+                                  }
+                              });
+                          }
+                      }
+                  } catch (e) {}
+
+                  if (points > 0) {
+                      try {
+                          const profileRes = await fetch(`https://api.chess.com/pub/player/${username}`);
+                          if (profileRes.ok) {
+                              const profileData = await profileRes.json();
+                              if (profileData.avatar) avatar = profileData.avatar;
+                          }
+                      } catch (e) {}
+                  }
+
+                  if (points > 0 || username.toLowerCase() === OWNER_USERNAME) {
+                      let dominantMode = 'rapid';
+                      let maxWins = -1;
+                      Object.keys(modeCounts).forEach(m => {
+                          if(modeCounts[m] > maxWins) { maxWins = modeCounts[m]; dominantMode = m; }
+                      });
+                      leaderboardData.push({ username, points, avatar, wins, draws, modePoints, dominantMode });
+                  }
+              }));
+              if (i + batchSize < uniqueUsernames.length) await new Promise(r => setTimeout(r, 200));
+          }
+
+          leaderboardData.sort((a, b) => b.points - a.points);
+          const timestamp = Date.now();
+
+          saveToLocalCache(leaderboardData, timestamp);
+
+          try {
+              await fetch(`https://api.jsonbin.v3/b/${BIN_ID}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                  body: JSON.stringify({ leaderboard: leaderboardData, timestamp: timestamp })
+              });
+          } catch(err) {}
+
+          renderPodium(leaderboardData, timestamp);
+      } catch (error) {
+          document.getElementById('loading-msg').innerText = "Failed to load stats.";
+      }
+  }
+
+  function renderPodium(leaderboard, targetTime) {
+      let data = [...leaderboard].slice(0, 3);
+      while(data.length < 3) {
+          data.push({username: 'No Player', points: 0, avatar: DEFAULT_AVATAR_RACE, wins: 0, draws: 0, modePoints: {rapid:0, blitz:0, bullet:0, daily:0}, dominantMode: 'rapid'});
+      }
+      const orderedData = [data[1], data[0], data[2]];
+      const podiumEl = document.getElementById('podium');
+      podiumEl.innerHTML = '';
+      orderedData.forEach((player, idx) => {
+          const rankNum = idx === 1 ? 1 : (idx === 0 ? 2 : 3);
+          const profileUrl = `https://www.chess.com/member/${player.username}`;
+          
+          const topCapsuleHTML = player.points > 0
+              ? `<div class="stat-capsule">${MODE_ICONS[player.dominantMode] || ''} W${player.wins} D${player.draws}</div>`
+              : `<div class="stat-capsule" style="opacity:0;">-</div>`;
+          
+          let badgesHTML = '<div class="mode-badges">';
+          let hasBadges = false;
+          if(player.modePoints) {
+              Object.keys(player.modePoints).forEach(mode => {
+                  if(player.modePoints[mode] > 0) {
+                      hasBadges = true;
+                      badgesHTML += `<div class="badge-item"><span>${MODE_ICONS[mode]}</span><span>${player.modePoints[mode]}</span></div>`;
+                  }
+              });
+          }
+          if(!hasBadges) badgesHTML += `<div style="font-size:8px; color:#888;">No Games</div>`;
+          badgesHTML += '</div>';
+
+          const col = document.createElement('div');
+          col.className = `podium-column rank-${rankNum}`;
+          col.innerHTML = `
+              ${topCapsuleHTML}
+              <div class="profile-wrapper">
+                  <div class="rank-badge">${rankNum}</div>
+                  <a href="${profileUrl}" target="_blank">
+                      <img class="profile-img" src="${player.avatar}" onerror="this.src='${DEFAULT_AVATAR_RACE}';">
+                  </a>
+              </div>
+              <a href="${profileUrl}" target="_blank" class="username-race">@${player.username}</a>
+              ${badgesHTML}
+              <div class="pillar"><div class="pts">${player.points}</div><div class="pts-label">pts</div></div>
+          `;
+          podiumEl.appendChild(col);
+      });
+
+      function updateAgoTime() {
+          const diffMs = Date.now() - targetTime;
+          const diffMins = Math.floor(diffMs / 60000);
+          let timeAgoText = "";
+          if (diffMins < 1) {
+              timeAgoText = "Just now";
+          } else if (diffMins === 1) {
+              timeAgoText = "1 min ago";
+          } else if (diffMins < 60) {
+              timeAgoText = `${diffMins} mins ago`;
+          } else {
+              const diffHours = Math.floor(diffMins / 60);
+              timeAgoText = diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
+          }
+          document.getElementById('update-time').innerText = `Resets 00:00 UTC\nUpdated: ${timeAgoText}`;
+      }
+
+      updateAgoTime();
+      setInterval(updateAgoTime, 60000);
+  }
+
+  initRaceSystem();
+</script>
