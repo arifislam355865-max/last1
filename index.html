@@ -710,9 +710,8 @@
   setupBirthdayDropdowns();
   renderBirthdayList();
 
-  // Daily Points Race System Script
+  // Daily Points Race System Script (Optimized to load directly from JSONBin without loops)
   const DEFAULT_AVATAR_RACE = 'https://www.chess.com/bundles/web/images/user-image.007dad08.svg';
-  const OWNER_USERNAME = 'oo_arabi';
   
   const MODE_ICONS = { 
       rapid: '<img src="https://raw.githubusercontent.com/arifislam355865-max/nmrQWSA/main/white%203.png" class="mode-icon-img">',
@@ -722,165 +721,29 @@
   };
  
   const BIN_ID = '6a5090bbf5f4af5e297b396c';
-  const API_KEY = '$2a$10$QQhk9bjohcodNyTgm79FG.WStnpidQ0QsU21mMt158se8850Z83Xe';
-  const CACHE_DURATION = 7200000;
-  const LOCAL_CACHE_KEY = 'royal_file_daily_race_cache';
 
   async function initRaceSystem() {
+      const loadingMsg = document.getElementById('loading-msg');
       try {
-          const localRaw = localStorage.getItem(LOCAL_CACHE_KEY);
-          if (localRaw) {
-              const localData = JSON.parse(localRaw);
-              const now = Date.now();
-              if (localData.timestamp && (now - localData.timestamp < CACHE_DURATION) && localData.leaderboard) {
-                  renderPodium(localData.leaderboard, localData.timestamp);
+          const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+              headers: { 'X-Bin-Meta': 'false' }
+          });
+          
+          if (res.ok) {
+              const data = await res.json();
+              // JSONBin v3 sometimes wraps response inside record
+              const leaderboard = data.record ? data.record.leaderboard : (Array.isArray(data) ? data : data.leaderboard);
+              const timestamp = data.record ? data.record.timestamp : (data.timestamp || Date.now());
+
+              if (leaderboard && Array.isArray(leaderboard) && leaderboard.length > 0) {
+                  renderPodium(leaderboard, timestamp);
                   return;
               }
           }
-      } catch (e) {}
-
-      try {
-          const res = await fetch(`https://api.jsonbin.v3/b/${BIN_ID}/latest`, {
-              headers: { 'X-Bin-Meta': 'true', 'X-Master-Key': API_KEY }
-          });
-          if (res.ok) {
-              const responseData = await res.json();
-              const serverData = responseData.record;
-              if (serverData && serverData.leaderboard && serverData.leaderboard.length > 0) {
-                  const lastUpdatedTime = serverData.timestamp ? parseInt(serverData.timestamp) : 0;
-                  const now = Date.now();
-                  if (lastUpdatedTime && (now - lastUpdatedTime < CACHE_DURATION)) {
-                      saveToLocalCache(serverData.leaderboard, lastUpdatedTime);
-                      renderPodium(serverData.leaderboard, lastUpdatedTime);
-                      return;
-                  }
-              }
-          }
-      } catch (e) {}
-
-      document.getElementById('loading-msg').innerText = "Refreshing Leaderboard...";
-      await refreshGlobalData();
-  }
-
-  function saveToLocalCache(leaderboard, timestamp) {
-      try {
-          localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify({
-              leaderboard: leaderboard,
-              timestamp: timestamp
-          }));
-      } catch (e) {}
-  }
-
-  async function refreshGlobalData() {
-      try {
-          const clubRes = await fetch('https://api.chess.com/pub/club/the-royal-file/members');
-          const clubData = await clubRes.json();
-          const allMembers = [
-              ...(clubData.owner ? [clubData.owner] : []),
-              ...(clubData.admin || []),
-              ...(clubData.weekly || []),
-              ...(clubData.all_time || [])
-          ];
-          let uniqueUsernames = Array.from(new Set(allMembers.map(m => m.username)));
-          if (!uniqueUsernames.map(u => u.toLowerCase()).includes(OWNER_USERNAME)) {
-              uniqueUsernames.push(OWNER_USERNAME);
-          }
-
-          let leaderboardData = [];
-          const now = new Date();
-          const year = now.getUTCFullYear();
-          const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-          const todayStr = `${year}-${month}-${String(now.getUTCDate()).padStart(2, '0')}`;
-          const batchSize = 5;
-
-          for (let i = 0; i < uniqueUsernames.length; i += batchSize) {
-              const batch = uniqueUsernames.slice(i, i + batchSize);
-              await Promise.all(batch.map(async (username) => {
-                  let avatar = DEFAULT_AVATAR_RACE;
-                  let points = 0, wins = 0, draws = 0;
-                  let modePoints = { rapid: 0, blitz: 0, bullet: 0, daily: 0 };
-                  let modeCounts = { rapid: 0, blitz: 0, bullet: 0, daily: 0 };
-                  try {
-                      const gamesRes = await fetch(`https://api.chess.com/pub/player/${username}/games/${year}/${month}`);
-                      if (gamesRes.ok) {
-                          const gamesData = await gamesRes.json();
-                          if (gamesData.games) {
-                              gamesData.games.forEach(game => {
-                                  const gameDate = new Date(game.end_time * 1000).toISOString().split('T')[0];
-                                  if (gameDate === todayStr && game.rated === true) {
-                                      let isWhite = game.white.username.toLowerCase() === username.toLowerCase();
-                                      let result = isWhite ? game.white.result : game.black.result;
-                                      let timeClass = game.time_class || 'rapid';
-                                      
-                                      let earnedPoints = 0;
-                                      if (result === 'win') {
-                                          wins++;
-                                          if (timeClass === 'rapid') earnedPoints = 15;
-                                          else if (timeClass === 'blitz') earnedPoints = 9;
-                                          else if (timeClass === 'bullet') earnedPoints = 3;
-                                          else earnedPoints = 15;
-                                          
-                                          points += earnedPoints;
-                                          if (modePoints[timeClass] !== undefined) { 
-                                              modePoints[timeClass] += earnedPoints; 
-                                              modeCounts[timeClass]++; 
-                                          }
-                                      } else if (['agreed', 'stalemate', 'repetition', 'insufficient', '50move'].includes(result)) {
-                                          draws++;
-                                          if (timeClass === 'rapid') earnedPoints = 5;
-                                          else if (timeClass === 'blitz') earnedPoints = 3;
-                                          else if (timeClass === 'bullet') earnedPoints = 1;
-                                          else earnedPoints = 5;
-                                          
-                                          points += earnedPoints;
-                                          if (modePoints[timeClass] !== undefined) {
-                                              modePoints[timeClass] += earnedPoints;
-                                          }
-                                      }
-                                  }
-                              });
-                          }
-                      }
-                  } catch (e) {}
-
-                  if (points > 0) {
-                      try {
-                          const profileRes = await fetch(`https://api.chess.com/pub/player/${username}`);
-                          if (profileRes.ok) {
-                              const profileData = await profileRes.json();
-                              if (profileData.avatar) avatar = profileData.avatar;
-                          }
-                      } catch (e) {}
-                  }
-
-                  if (points > 0 || username.toLowerCase() === OWNER_USERNAME) {
-                      let dominantMode = 'rapid';
-                      let maxWins = -1;
-                      Object.keys(modeCounts).forEach(m => {
-                          if(modeCounts[m] > maxWins) { maxWins = modeCounts[m]; dominantMode = m; }
-                      });
-                      leaderboardData.push({ username, points, avatar, wins, draws, modePoints, dominantMode });
-                  }
-              }));
-              if (i + batchSize < uniqueUsernames.length) await new Promise(r => setTimeout(r, 200));
-          }
-
-          leaderboardData.sort((a, b) => b.points - a.points);
-          const timestamp = Date.now();
-
-          saveToLocalCache(leaderboardData, timestamp);
-
-          try {
-              await fetch(`https://api.jsonbin.v3/b/${BIN_ID}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-                  body: JSON.stringify({ leaderboard: leaderboardData, timestamp: timestamp })
-              });
-          } catch(err) {}
-
-          renderPodium(leaderboardData, timestamp);
-      } catch (error) {
-          document.getElementById('loading-msg').innerText = "Failed to load stats.";
+          if(loadingMsg) loadingMsg.innerText = "No leaderboard data found.";
+      } catch (e) {
+          console.error("Error fetching leaderboard:", e);
+          if(loadingMsg) loadingMsg.innerText = "Failed to load leaderboard.";
       }
   }
 
@@ -892,6 +755,7 @@
       const orderedData = [data[1], data[0], data[2]];
       const podiumEl = document.getElementById('podium');
       podiumEl.innerHTML = '';
+      
       orderedData.forEach((player, idx) => {
           const rankNum = idx === 1 ? 1 : (idx === 0 ? 2 : 3);
           const profileUrl = `https://www.chess.com/member/${player.username}`;
@@ -931,7 +795,7 @@
       });
 
       function updateAgoTime() {
-          const diffMs = Date.now() - targetTime;
+          const diffMs = Date.now() - (targetTime || Date.now());
           const diffMins = Math.floor(diffMs / 60000);
           let timeAgoText = "";
           if (diffMins < 1) {
@@ -944,7 +808,8 @@
               const diffHours = Math.floor(diffMins / 60);
               timeAgoText = diffHours === 1 ? "1 hr ago" : `${diffHours} hrs ago`;
           }
-          document.getElementById('update-time').innerText = `Resets 00:00 UTC\nUpdated: ${timeAgoText}`;
+          const timeEl = document.getElementById('update-time');
+          if(timeEl) timeEl.innerText = `Resets 00:00 UTC\nUpdated: ${timeAgoText}`;
       }
 
       updateAgoTime();
